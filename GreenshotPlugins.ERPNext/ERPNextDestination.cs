@@ -37,9 +37,22 @@ namespace GreenshotPlugins.ERPNext
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            Log.InfoFormat("Uploading image to ERPNext with tag `{0}`", Tag);
+            Log.InfoFormat("Starting export of image to ERPNext with tag `{0}`", Tag);
 
             var exportInformation = new ExportInformation(Designation, Description);
+            
+            if (string.IsNullOrEmpty(Config.InstanceURL) || string.IsNullOrEmpty(Config.ClientID))
+            {
+                Log.Info("InstanceURL or ClientID is not configured. Rejecting export.");
+
+                MessageBox.Show($"Please configure your ERPNext OAuth client ID and instance URL.");
+
+                exportInformation.ExportMade = false;
+                exportInformation.ErrorMessage = "Instance URL or client ID is nullish";
+
+                return exportInformation;
+            }
+
             var fileName = FilenameHelper.GetFilenameFromPattern(CoreConfig.OutputFileFilenamePattern, CoreConfig.OutputFileFormat, captureDetails);
             var outputSettings = new SurfaceOutputSettings(CoreConfig.OutputFileFormat, CoreConfig.OutputFileJpegQuality, CoreConfig.OutputFileReduceColors);
 
