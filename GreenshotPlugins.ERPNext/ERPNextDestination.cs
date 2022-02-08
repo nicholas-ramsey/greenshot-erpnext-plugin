@@ -37,7 +37,7 @@ namespace GreenshotPlugins.ERPNext
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            Log.DebugFormat("Uploading image to ERPNext with tag `{0}`", Tag);
+            Log.InfoFormat("Uploading image to ERPNext with tag `{0}`", Tag);
 
             var exportInformation = new ExportInformation(Designation, Description);
             var fileName = FilenameHelper.GetFilenameFromPattern(CoreConfig.OutputFileFilenamePattern, CoreConfig.OutputFileFormat, captureDetails);
@@ -75,8 +75,8 @@ namespace GreenshotPlugins.ERPNext
                         Config.IsDirty = true;
                         IniConfig.Save();
 
-                        Log.DebugFormat("Saved access token: {0}", accessToken);
-                        Log.Debug("Refreshed ERPNext tokens");
+                        Log.InfoFormat("Saved access token: {0}", accessToken);
+                        Log.Info("Refreshed ERPNext tokens");
 
                         var uploadTask = ERPNextUtils.UploadImage(
                             instanceURL: Config.InstanceURL,
@@ -95,7 +95,7 @@ namespace GreenshotPlugins.ERPNext
 
                         var docURL = ERPNextUtils.BuildDocURL(Config.InstanceURL, doctype, docname);
 
-                        Log.DebugFormat("Uploaded to {0}", docURL);
+                        Log.InfoFormat("Uploaded to {0}", docURL);
 
                         var addTagTask = ERPNextUtils.AddTagToFile(
                             instanceURL: Config.InstanceURL,
@@ -106,7 +106,7 @@ namespace GreenshotPlugins.ERPNext
                         );
                         addTagTask.Wait();
 
-                        Log.DebugFormat("Tagged {0} with {1}", docURL, Tag);
+                        Log.InfoFormat("Tagged {0} with {1}", docURL, Tag);
 
                         if (!string.IsNullOrEmpty(docURL) && Config.CopyLinkToClipboard)
                         {
@@ -178,15 +178,7 @@ namespace GreenshotPlugins.ERPNext
 
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
-            Log.Debug("Main ERPNext export menu item.");
-
             return null;
-        }
-
-        public override ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler)
-        {
-            Log.DebugFormat("Add dynamics {0}", addDynamics);
-            return base.GetMenuItem(addDynamics, menu, destinationClickHandler);
         }
     }
 }

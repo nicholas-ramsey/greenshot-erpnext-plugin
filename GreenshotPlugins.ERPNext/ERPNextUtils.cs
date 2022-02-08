@@ -25,8 +25,6 @@ namespace GreenshotPlugins.ERPNext
             client.DefaultRequestHeaders.Add("User-Agent", "GreenShot");
             client.Timeout = TimeSpan.FromSeconds(25);
 
-            Log.DebugFormat("Built HttpClient with access token", accessToken);
-
             if (accessToken != String.Empty)
             {
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
@@ -113,7 +111,7 @@ namespace GreenshotPlugins.ERPNext
             var client = GetHttpClient(String.Empty);
 
             var tokenUrl = GetTokenUrl(instanceURL);
-            Log.DebugFormat("Refreshing ERPNext OAuth token with token URL {0}", tokenUrl);
+            Log.InfoFormat("Refreshing ERPNext OAuth token with token URL {0}", tokenUrl);
 
             var payload = new Dictionary<string, string>
             {
@@ -150,7 +148,7 @@ namespace GreenshotPlugins.ERPNext
 
         public static async Task<Dictionary<string, Dictionary<string, string>>> UploadImage(string instanceURL, string accessToken, string fileName, ISurface image, SurfaceOutputSettings outputSettings)
         {
-            Log.DebugFormat("Uploading image to ERPNext {0}", fileName);
+            Log.InfoFormat("Uploading image to ERPNext {0}", fileName);
 
             instanceURL = FormatInstanceURL(instanceURL);
 

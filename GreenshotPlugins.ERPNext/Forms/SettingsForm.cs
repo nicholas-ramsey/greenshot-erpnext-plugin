@@ -49,10 +49,8 @@ namespace GreenshotPlugins.ERPNext.Forms
 
         }
 
-        private async Task<bool> HandleOAuthToken()
+        private async Task<bool> HandleOAuthToken(string code, string state)
         {
-            var code = Globals.LastOAuthAuthCode;
-            var state = Globals.LastOAuthState;
             var generatedState = Globals.LastGeneratedOAuthState;
 
             if(generatedState != state)
@@ -61,9 +59,9 @@ namespace GreenshotPlugins.ERPNext.Forms
                 return false;
             }
 
-            if(code is null)
+            if(code is null || code == string.Empty)
             {
-                Log.Error("Missing OAuth code");
+                Log.Error("OAuth code is missing");
                 return false;
             }
 
@@ -86,7 +84,7 @@ namespace GreenshotPlugins.ERPNext.Forms
                 return false;
             }
 
-            Log.Debug("Successfully received Frappe token response");
+            Log.Info("Successfully received Frappe token response");
 
             Config.RefreshToken = response["refresh_token"];
             Config.AccessToken = response["access_token"];
@@ -98,13 +96,20 @@ namespace GreenshotPlugins.ERPNext.Forms
 
         private async void CloseOnOAuthRequest(HttpSelfHostServer server)
         {
-            while (Globals.LastOAuthAuthCode == String.Empty)
+            Log.Info("Waiting for OAuth code");
+
+            while (Globals.LastOAuthAuthCode == String.Empty || Globals.LastOAuthAuthCode is null)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
 
+            var oauthCode = Globals.LastOAuthAuthCode;
+            var oauthState = Globals.LastOAuthState;
+
+            Log.InfoFormat("Received OAuth code with state `{0}`", oauthState);
+
             await server.CloseAsync();
-            await HandleOAuthToken();
+            await HandleOAuthToken(code: oauthCode, state: oauthState);
 
             Globals.LastOAuthAuthCode = String.Empty;
             Globals.LastGeneratedOAuthState = String.Empty;
@@ -136,6 +141,8 @@ namespace GreenshotPlugins.ERPNext.Forms
 
             try
             {
+                Log.Info("Starting ERPNextAPI controller");
+
                 var server = new HttpSelfHostServer(serverConfig);
                 await server.OpenAsync();
 
