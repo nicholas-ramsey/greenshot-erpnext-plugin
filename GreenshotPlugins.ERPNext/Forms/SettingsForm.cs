@@ -31,17 +31,20 @@ namespace GreenshotPlugins.ERPNext.Forms
             AcceptButton = buttonOK;
             CancelButton = buttonCancel;
 
-            if (Config.RefreshToken != String.Empty)
+            if (!String.IsNullOrEmpty(Config.RefreshToken))
             {
-                loginLabel.Text = "Login (Currently Logged In)";
-                loginButton.Text = "Login Again to ERPNext";
+                this.loginLabel.Text = "Login (Currently Logged In)";
+            }
+            else
+            {
+                this.loginLabel.Text = "Login";
             }
 
-            availableTags.Text = Config.AvailableTags;
-            instanceURL.Text = Config.InstanceURL;
-            clientID.Text = Config.ClientID;
-            copyLinkOnUpload.Checked = Config.CopyLinkToClipboard;
-            uploadAsGuest.Checked = Config.UploadAsGuest;
+            this.availableTags.Text = Config.AvailableTags;
+            this.instanceURL.Text = Config.InstanceURL;
+            this.clientID.Text = Config.ClientID;
+            this.copyLinkOnUpload.Checked = Config.CopyLinkToClipboard;
+            this.uploadAsGuest.Checked = Config.UploadAsGuest;
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
@@ -59,7 +62,7 @@ namespace GreenshotPlugins.ERPNext.Forms
                 return false;
             }
 
-            if(code is null || code == string.Empty)
+            if(String.IsNullOrEmpty(code))
             {
                 Log.Error("OAuth code is missing");
                 return false;
@@ -98,7 +101,7 @@ namespace GreenshotPlugins.ERPNext.Forms
         {
             Log.Info("Waiting for OAuth code");
 
-            while (Globals.LastOAuthAuthCode == String.Empty || Globals.LastOAuthAuthCode is null)
+            while (String.IsNullOrEmpty(Globals.LastOAuthAuthCode))
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
@@ -119,6 +122,8 @@ namespace GreenshotPlugins.ERPNext.Forms
 
         private async void loginButton_Click(object sender, EventArgs e)
         {
+            System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
+
             var redirectUri = Globals.OAuthRedirectUri;
 
             var serverConfig = new HttpSelfHostConfiguration(redirectUri);
@@ -266,7 +271,7 @@ namespace GreenshotPlugins.ERPNext.Forms
             this.loginLabel.Name = "loginLabel";
             this.loginLabel.Size = new System.Drawing.Size(128, 13);
             this.loginLabel.TabIndex = 10;
-            this.loginLabel.Text = "Login (currently logged in)";
+            this.loginLabel.Text = "Login";
             // 
             // loginButton
             // 
